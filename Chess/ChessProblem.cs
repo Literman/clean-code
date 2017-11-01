@@ -2,56 +2,52 @@
 {
 	public class ChessProblem
 	{
-		private static Board board;
-		public static ChessStatus ChessStatus;
+		private readonly Board board;
 
-		public static void LoadFrom(string[] lines)
-		{
-			board = new BoardParser().ParseBoard(lines);
-		}
+	    public ChessProblem(Board board)
+	    {
+	        this.board = board;
+	    }
 
 		// Определяет мат, шах или пат белым.
-		public static void CalculateChessStatus()
+		public ChessStatus GetChessStatusFor(PieceColor color)
 		{
-			var isCheck = IsCheckForWhite();
-			var hasMoves = false;
-			foreach (var locFrom in board.GetPieces(PieceColor.White))
+			var isCheck = IsCheckFor(color);
+			var hasMoves = HasMoves(color);
+			
+			if (isCheck)
+				return hasMoves ? ChessStatus.Check : ChessStatus.Mate;
+			return hasMoves ? ChessStatus.Ok : ChessStatus.Stalemate;
+		}
+
+	    private bool HasMoves(PieceColor color)
+	    {
+	        foreach (var locFrom in board.GetPieces(color))
+	        {
+	            foreach (var locTo in board.GetPiece(locFrom).GetMoves(locFrom, board))
+	            {
+	                using (board.PerformTemporaryMove(locFrom, locTo))
+	                    return !IsCheckFor(color);
+	            }
+	        }
+	        return false;
+	    }
+
+		// check — это шах
+		private bool IsCheckFor(PieceColor color)
+		{
+			foreach (var locFrom in board.GetPieces(GetEnemyColor(color)))
 			{
 				foreach (var locTo in board.GetPiece(locFrom).GetMoves(locFrom, board))
 				{
-					var old = board.GetPiece(locTo);
-					board.Set(locTo, board.GetPiece(locFrom));
-					board.Set(locFrom, null);
-					if (!IsCheckForWhite())
-						hasMoves = true;
-					board.Set(locFrom, board.GetPiece(locTo));
-					board.Set(locTo, old);
+					if (board.GetPiece(locTo).Is(color, PieceType.King))
+						return true;
 				}
 			}
-			if (isCheck)
-				if (hasMoves)
-					ChessStatus = ChessStatus.Check;
-				else ChessStatus = ChessStatus.Mate;
-			else if (hasMoves) ChessStatus = ChessStatus.Ok;
-			else ChessStatus = ChessStatus.Stalemate;
-		}
-
-		// check — это шах
-		private static bool IsCheckForWhite()
-		{
-			var isCheck = false;
-			foreach (var loc in board.GetPieces(PieceColor.Black))
-			{
-				var piece = board.GetPiece(loc);
-				var moves = piece.GetMoves(loc, board);
-				foreach (var destination in moves)
-				{
-					if (board.GetPiece(destination).Is(PieceColor.White, PieceType.King))
-						isCheck = true;
-				}
-			}
-			if (isCheck) return true;
 			return false;
 		}
+
+	    private static PieceColor GetEnemyColor(PieceColor color) => 
+            color == PieceColor.Black ? PieceColor.White : PieceColor.Black;
 	}
 }
