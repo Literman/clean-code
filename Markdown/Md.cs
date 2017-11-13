@@ -7,7 +7,7 @@ namespace Markdown
 {
     public class Md
     {
-        private List<ITagable> parsers = new List<ITagable> { new StrongTag(), new EmTag() };
+        private List<ITagable> parsers = new List<ITagable> { new EmTag(), new StrongTag() };
 
         public string RenderToHtml(string markdown)
         {

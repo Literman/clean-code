@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Markdown
 {
@@ -49,6 +50,11 @@ namespace Markdown
             //CheckDoubleInsideSingleUnderscores();
 
             return Replace();
+        }
+
+        private void CheckDoubleInsideSingleUnderscores(StringBuilder line)
+        {
+            throw new System.NotImplementedException();
         }
 
         private static bool IsSpaceBeforeUndescore(StringBuilder line, int pos, bool isOpen) =>
