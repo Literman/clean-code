@@ -64,12 +64,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ITagable.cs" />
     <Compile Include="Md.cs" />
+    <Compile Include="Parser.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="EmTag.cs" />
-    <Compile Include="StrongTag.cs" />
-    <Compile Include="Tag.cs" />
+    <Compile Include="SpecialSymbol.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
