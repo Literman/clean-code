@@ -66,7 +66,7 @@ namespace Markdown
 
                 if (register.Contains(currentSymbol))
                 {
-                    AddSpecialSymbol(currentSymbol, isCloseTag, ref pos, line);
+                    pos += AddSpecialSymbolAndGetOffset(currentSymbol, isCloseTag, pos, line);
                     continue;
                 }
 
@@ -132,7 +132,7 @@ namespace Markdown
             else openedSymbols.Push(data);
         }
 
-        private static void AddSpecialSymbol(char currentSymbol, bool isCloseTag, ref int pos, string line)
+        private static int AddSpecialSymbolAndGetOffset(char currentSymbol, bool isCloseTag, int pos, string line)
         {
             var size = 1;
             while (pos + size < line.Length && currentSymbol == line[pos + size])
@@ -140,8 +140,7 @@ namespace Markdown
 
             if (IsOpenTag(pos + size, line) != isCloseTag)
                 AddOpenedSymbol(currentSymbol, isCloseTag, pos, size);
-
-            pos += size;
+            return size;
         }
 
         private static void PastTag(SpecialSymbol specialSymbol)

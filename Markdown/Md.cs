@@ -78,8 +78,8 @@ namespace Markdown
         [TestCase("_ __hello__ _world", ExpectedResult = "_ <strong>hello</strong> _world")]
         [TestCase("__ _hello_ __world", ExpectedResult = "__ <em>hello</em> __world")]
 
-        [TestCase(@"\__a_", ExpectedResult = @"_<em>a</em>", TestName = "When screened")]
-        [TestCase(@"b\__a_", ExpectedResult = @"b__a_", TestName = "When screened2")]
+        [TestCase(@"\__a_", ExpectedResult = @"_<em>a</em>", TestName = "When first symbol screened")]
+        [TestCase(@"b\__a_", ExpectedResult = @"b__a_", TestName = "When non first symbol screened")]
         public string WithBothUnderscoresType(string markDown)
         {
             return new Md().RenderToHtml(markDown);
