@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using System.Text;
+using FluentAssertions;
+using NUnit.Framework;
 
 namespace Markdown
 {
@@ -7,9 +9,6 @@ namespace Markdown
         public string RenderToHtml(string markdown)
         {
             var text = markdown.Split('\n');
-            Parser.SetSpecialSymbols(
-                ("_", "em"),
-                ("__", "strong"));
 
             for (var i = 0; i < text.Length; i++)
                 text[i] = Parse(text[i]);
@@ -20,8 +19,7 @@ namespace Markdown
         private static string Parse(string line)
         {
             var parser = new Parser();
-            line = parser.RenderToHtml(line);
-            return line;
+            return parser.RenderToHtml(line);
         }
     }
 
@@ -66,7 +64,7 @@ namespace Markdown
 
         [TestCase(@"\__a __b__ c", ExpectedResult = "__a <strong>b</strong> c", TestName = "When screened")]
         [TestCase(@"\__a \__ __b__ \c", ExpectedResult = @"__a __ <strong>b</strong> c", TestName = "When screened2")]
-        [TestCase(@"\__\a\__b__c", ExpectedResult = @"__a__b__c", TestName = "When screened3")]
+        [TestCase(@"\__\a\__b__c", ExpectedResult = @"__a__b__c", TestName = "When screened3")]       
         public string WithDoubleUnderscore(string markDown)
         {
             return new Md().RenderToHtml(markDown);
@@ -79,9 +77,33 @@ namespace Markdown
         [TestCase("__hello__ _world_", ExpectedResult = "<strong>hello</strong> <em>world</em>")]
         [TestCase("_ __hello__ _world", ExpectedResult = "_ <strong>hello</strong> _world")]
         [TestCase("__ _hello_ __world", ExpectedResult = "__ <em>hello</em> __world")]
+
+        [TestCase(@"\__a_", ExpectedResult = @"_<em>a</em>", TestName = "When screened")]
+        [TestCase(@"b\__a_", ExpectedResult = @"b__a_", TestName = "When screened2")]
         public string WithBothUnderscoresType(string markDown)
         {
             return new Md().RenderToHtml(markDown);
+        }
+
+        [TestCase(10000), Timeout(300)]
+        [TestCase(100000)]
+        [TestCase(1000000)]
+        public void Perfomance(int count)
+        {
+            var longStr = GetLongString(count);
+            var markdown = longStr + " _a_";
+            var expectated = longStr + " <em>a</em>";
+            
+            new Md().RenderToHtml(markdown).ShouldBeEquivalentTo(expectated);
+        }
+
+        private static string GetLongString(int count)
+        {
+            var str = new StringBuilder();
+            for (var i = 0; i < count; i++)
+                str.Append('a');
+
+            return str.ToString();
         }
     }
 }

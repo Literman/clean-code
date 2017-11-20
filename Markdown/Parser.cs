@@ -26,6 +26,13 @@ namespace Markdown
             openedSymbols.Clear();
         }
 
+        public Parser(params (string, string)[] options) : this()
+        {
+            register.Clear();
+            tags.Clear();
+            RegisterSpecialSymbols(options);
+        }
+
         private static void RegisterSpecialSymbols(params (string Symbol, string Tag)[] options)
         {
             foreach (var pair in options)
@@ -35,21 +42,14 @@ namespace Markdown
             }
         }
 
-        public static void SetSpecialSymbols(params (string, string)[] options)
-        {
-            register.Clear();
-            tags.Clear();
-            RegisterSpecialSymbols(options);
-        }
-
         public string RenderToHtml(string line)
         {
-            Read(line);
+            SetSpecialSymbols(line);
             UpdateSpecialSymbols();
             return GetRendedText(line);
         }
 
-        private static void Read(string line)
+        private static void SetSpecialSymbols(string line)
         {
             var pos = 0;
             var isCloseTag = false;
@@ -78,18 +78,12 @@ namespace Markdown
         private void UpdateSpecialSymbols()
         {
             var isSingle = false;
-            var i = 0;
             foreach (var symbol in specialSymbols.ToArray())
             {
                 if (symbol.MainSymbol == '_' && symbol.Size == 1)
-                {
                     isSingle = !symbol.IsCloseTag;
-                }
                 if (symbol.MainSymbol == '_' && symbol.Size == 2 && isSingle)
-                {
                     specialSymbols.Remove(symbol);
-                }
-                i++;
             }
         }
 
@@ -141,12 +135,8 @@ namespace Markdown
         private static void AddSpecialSymbol(char currentSymbol, bool isCloseTag, ref int pos, string line)
         {
             var size = 1;
-            while (pos + size < line.Length)
-            {
-                if (currentSymbol != line[pos + size])
-                    break;
+            while (pos + size < line.Length && currentSymbol == line[pos + size])
                 size++;
-            }
 
             if (IsOpenTag(pos + size, line) != isCloseTag)
                 AddOpenedSymbol(currentSymbol, isCloseTag, pos, size);
